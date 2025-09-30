@@ -1,18 +1,14 @@
 package br.com.joao.controller;
 
+import br.com.joao.controller.dto.ApiListDto;
 import br.com.joao.controller.dto.CreateEventDTO;
 import br.com.joao.controller.dto.EventDto;
-import br.com.joao.entity.EventEntity;
+import br.com.joao.controller.dto.SeatDto;
 import br.com.joao.service.EventService;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 @Path("/events")
 public class EventController {
@@ -24,8 +20,10 @@ public class EventController {
     }
 
     @GET
-    public List<EventDto> getEvents(){
-        return eventService.findAll();
+    public ApiListDto<EventDto> getEvents(@QueryParam("page") @DefaultValue("0") Integer page,
+                                          @QueryParam("pageSize") @DefaultValue("10") Integer pageSize){
+
+        return eventService.findAll(page, pageSize);
     }
 
     @POST
@@ -40,12 +38,20 @@ public class EventController {
 
     @GET
     @Path("/{id}")
-    public Response getEvent(Long id){
+    public Response getEvent(@PathParam("id") Long id){
 
         var event = eventService.findById(id);
 
         return event.isPresent()
                 ? Response.ok(event).build()
                 : Response.status(Response.Status.NOT_FOUND).build();
+    }
+
+    @GET
+    @Path("/{id}/seats")
+    public ApiListDto<SeatDto> getSeats(@PathParam("id") Long id,
+                                        @QueryParam("page") @DefaultValue("0") Integer page,
+                                        @QueryParam("pageSize") @DefaultValue("10") Integer pageSize){
+        return eventService.findAllSeats(id, page, pageSize);
     }
 }

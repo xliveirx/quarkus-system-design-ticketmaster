@@ -1,8 +1,10 @@
 package br.com.joao.service;
 
-import br.com.joao.controller.dto.CreateEventDTO;
-import br.com.joao.controller.dto.EventDto;
+import br.com.joao.controller.dto.*;
 import br.com.joao.entity.EventEntity;
+import br.com.joao.entity.SeatEntity;
+import br.com.joao.entity.SeatStatus;
+import io.quarkus.panache.common.Page;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -12,21 +14,40 @@ import java.util.Optional;
 @ApplicationScoped
 public class EventService {
 
-    public List<EventDto> findAll() {
-        return EventEntity.findAll().stream()
+    public ApiListDto<EventDto> findAll(int page, int pageSize) {
+        var query = EventEntity.findAll()
+                .page(Page.of(page, pageSize));
+
+        List<EventDto> events = query
+                .stream()
                 .map(EventEntity.class::cast)
                 .map(EventDto::fromEntity)
                 .toList();
+
+        var totalPages = query.pageCount();
+        var totalItems = query.count();
+
+        return new ApiListDto<>(
+                events,
+                new PaginationDto(page, pageSize, totalPages, totalItems));
+
     }
 
     @Transactional
     public EventDto createEvent(CreateEventDTO dto){
 
-        var entity = dto.toEntity();
+        var eventEntity = dto.toEntity();
 
-        entity.persist();
+        eventEntity.persist();
 
-        return EventDto.fromEntity(entity);
+        SeatEntity seatEntity;
+        for(int c = 0; c < dto.settings().numberOfSeats(); c++){
+            var seatName = "S" + c;
+            seatEntity = new SeatEntity(eventEntity, seatName, SeatStatus.AVAILABLE);
+            seatEntity.persist();
+        }
+
+        return EventDto.fromEntity(eventEntity);
 
     }
 
@@ -36,5 +57,25 @@ public class EventService {
                 .map(EventEntity.class::cast)
                 .map(EventDto::fromEntity);
 
+    }
+
+    public ApiListDto<SeatDto> findAllSeats(Long eventId, Integer page, Integer pageSize) {
+
+        // TO-DO - tratar exception via ExceptionHandler
+        var event = EventEntity.findByIdOptional(eventId).orElseThrow();
+
+        var query = SeatEntity.find("eventId", event)
+                .page(Page.of(page, pageSize));
+
+        var totalPages = query.pageCount();
+        var totalItems = query.count();
+        var events = query.stream()
+                .map(SeatEntity.class::cast)
+                .map(SeatDto::fromEntity)
+                .toList();
+
+        return new ApiListDto<>(
+                events,
+                new PaginationDto(page, pageSize, totalPages, totalItems));
     }
 }
