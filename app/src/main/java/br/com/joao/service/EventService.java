@@ -64,7 +64,7 @@ public class EventService {
         // TO-DO - tratar exception via ExceptionHandler
         var event = EventEntity.findByIdOptional(eventId).orElseThrow();
 
-        var query = SeatEntity.find("eventId", event)
+        var query = SeatEntity.find("event", event)
                 .page(Page.of(page, pageSize));
 
         var totalPages = query.pageCount();
