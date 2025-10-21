@@ -10,9 +10,18 @@ public class SeatAlreadyBookedException extends TicketmasterException{
 
     @Override
     protected ProblemDetails toProblemDetails() {
+
+        var status = 422;
+
         return new ProblemDetails(
-                new ExceptionResponse("SeatAlreadyBookedException", "Seat already booked", "Seat with id " + seatId + " is already booked."),
-                422
+                new ExceptionResponse(
+                        "about:blank",
+                        "Seat already booked",
+                        "Seat with id " + seatId + " is already booked.",
+                        status,
+                        null
+                        ),
+                status
         );
     }
 }

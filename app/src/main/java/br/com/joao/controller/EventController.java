@@ -5,6 +5,7 @@ import br.com.joao.controller.dto.CreateEventDTO;
 import br.com.joao.controller.dto.EventDto;
 import br.com.joao.controller.dto.SeatDto;
 import br.com.joao.service.EventService;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
@@ -27,7 +28,7 @@ public class EventController {
     }
 
     @POST
-    public Response createEvent(CreateEventDTO dto){
+    public Response createEvent(@Valid CreateEventDTO dto){
 
         var body = eventService.createEvent(dto);
 

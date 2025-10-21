@@ -6,7 +6,14 @@ public class TicketmasterException extends RuntimeException{
 
     protected ProblemDetails toProblemDetails(){
         return new ProblemDetails(
-                new ExceptionResponse("InternalServerError", "Ticketmaster Exception", ""),
-                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+                new ExceptionResponse(
+                        "about:blank",
+                        "Ticketmaster Exception",
+                        "There is an internal server error.",
+                        Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(),
+                        null
+                ),
+                Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()
+        );
     }
 }
