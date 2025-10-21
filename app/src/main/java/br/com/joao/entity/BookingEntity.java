@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 
 @Entity
+@Table(name = "tb_bookings")
 public class BookingEntity extends PanacheEntityBase {
 
     @Id
