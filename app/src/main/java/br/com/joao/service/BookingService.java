@@ -5,6 +5,7 @@ import br.com.joao.controller.dto.CreateBookingDto;
 import br.com.joao.entity.*;
 import br.com.joao.exception.ResourceNotFoundException;
 import br.com.joao.exception.SeatAlreadyBookedException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -17,11 +18,10 @@ import java.util.UUID;
 @ApplicationScoped
 public class BookingService {
 
-    private final BookingController bookingController;
+    private final BookingExpirationService bookingExpirationService;
 
-    @Inject
-    public BookingService(BookingController bookingController) {
-        this.bookingController = bookingController;
+    public BookingService(BookingExpirationService bookingExpirationService) {
+        this.bookingExpirationService = bookingExpirationService;
     }
 
     @Transactional
@@ -37,6 +37,8 @@ public class BookingService {
         createTickets(availableSeats, bookingEntity);
 
         updateSeats(availableSeats);
+
+        bookingExpirationService.scheduleExpirationCheck(bookingEntity.id);
 
         return bookingEntity.id;
     }
